@@ -1,17 +1,20 @@
+# features.py
+
 import pandas as pd
 from sklearn.feature_extraction.text import TfidfVectorizer
 from nltk.sentiment import SentimentIntensityAnalyzer
 import nltk
+from preprocessing import preprocess_data
 
 def create_features(data):
     # Ensure the Vader lexicon is downloaded
     nltk.download('vader_lexicon')
     
     # Initialize TF-IDF Vectorizer with n-grams
-    tfidf_vectorizer = TfidfVectorizer(ngram_range=(1, 2), min_df=5, max_df=0.5, max_features=10000)
+    tfidf_vectorizer = TfidfVectorizer(ngram_range=(1, 3), min_df=3, max_df=0.3, max_features=5000)
     
     # Apply TF-IDF to the processed text data
-    tfidf_features = tfidf_vectorizer.fit_transform(data['processed_text'].astype('U'))  # Ensure data is unicode
+    tfidf_features = tfidf_vectorizer.fit_transform(data['processed_text'].astype(str))  # Ensure data is treated as string
 
     # Initialize NLTK's VADER Sentiment Intensity Analyzer
     sid = SentimentIntensityAnalyzer()
@@ -29,7 +32,7 @@ def create_features(data):
 def main():
     # Load and preprocess the data
     filepath = 'labeled_data.csv'
-    preprocessed_data = preprocess_data(filepath, 'tweet_text')  # Adjust this if the column name is different
+    preprocessed_data = preprocess_data(filepath, 'tweet')  # Adjust this if the column name is different
     
     # Create features
     features = create_features(preprocessed_data)
