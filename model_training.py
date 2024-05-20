@@ -4,7 +4,7 @@ from sklearn.metrics import classification_report
 from sklearn.feature_extraction.text import TfidfVectorizer
 from transformers import BertTokenizer, BertForSequenceClassification, Trainer, TrainingArguments
 import torch
-from preprocessing import preprocess_data
+from preprocessing import preprocess_tweet
 
 def train_naive_bayes(X_train, y_train):
     nb_model = MultinomialNB()
@@ -46,7 +46,7 @@ def train_evaluate_bert(data):
 
 def main():
     filepath = 'labeled_data.csv'
-    data = preprocess_data(filepath)
+    data = preprocess_tweet(filepath)
     vectorizer = TfidfVectorizer()
     X = vectorizer.fit_transform(data['tokenized_text'])
     y = data['class']
