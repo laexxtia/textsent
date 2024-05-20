@@ -1,29 +1,33 @@
-import pandas as pd
 import re
-from nltk.corpus import stopwords
-from nltk.stem import WordNetLemmatizer
-from nltk.tokenize import word_tokenize
+from nltk.tokenize import TweetTokenizer
+from emot.emo_unicode import UNICODE_EMO, EMOTICONS
 
-def load_data(filepath):
-    return pd.read_csv(filepath)
+# Initialize the tokenizer
+tokenizer = TweetTokenizer()
 
-def clean_text(text):
-    text = re.sub(r'[^a-zA-Z0-9\s]', '', text)
-    text = re.sub(r'http\S+', '', text)
-    text = text.lower()
-    text = re.sub(r'@\w+', '', text)
+# Helper function to convert emoticons to words
+def convert_emoticons(text):
+    for emot in EMOTICONS:
+        text = text.replace(emot, " " + EMOTICONS[emot] + " ")
     return text
 
-def tokenize_and_normalize(text):
-    tokens = word_tokenize(text)
-    stop_words = set(stopwords.words('english'))
-    filtered_tokens = [token for token in tokens if not token in stop_words]
-    lemmatizer = WordNetLemmatizer()
-    lemmatized_tokens = [lemmatizer.lemmatize(token) for token in filtered_tokens]
-    return ' '.join(lemmatized_tokens)
+# Helper function to convert emojis to words
+def convert_emojis(text):
+    for emo in UNICODE_EMO:
+        text = text.replace(emo, " " + UNICODE_EMO[emo].replace(",", "").replace(":", "").replace("_", " ") + " ")
+    return text
 
-def preprocess_data(filepath):
-    data = load_data(filepath)
-    data['clean_text'] = data['tweet'].apply(clean_text)
-    data['tokenized_text'] = data['clean_text'].apply(tokenize_and_normalize)
-    return data
+def preprocess_tweet(text):
+    # Convert emojis to words
+    text = convert_emojis(text)
+    # Convert emoticons to words
+    text = convert_emoticons(text)
+    # Remove URLs
+    text = re.sub(r"http\S+|www\S+|https\S+", '', text, flags=re.MULTILINE)
+    # Remove user mentions and hashtags
+    text = re.sub(r'\@\w+|\#', '', text)
+    # Tokenize and convert to lower case
+    tokens = tokenizer.tokenize(text.lower())
+    # Normalize text by removing any remaining special characters
+    tokens = [re.sub(r'\W+', '', token) for token in tokens if re.sub(r'\W+', '', token)]
+    return tokens
