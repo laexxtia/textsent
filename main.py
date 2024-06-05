@@ -8,7 +8,7 @@ from model_training import (
     train_logistic_regression_with_tfidf, 
     train_logistic_regression_with_raw_counts
 )
-from bert_training import preprocess_for_bert, train_bert, evaluate_bert
+from bert_training import preprocess_for_bert, train_bert, evaluate_bert, print_evaluation_results
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import classification_report, accuracy_score
 import time
@@ -95,7 +95,7 @@ def main():
     start_time = time.time()
     evaluation_results = evaluate_bert(trainer)
     print(f"BERT evaluation time: {time.time() - start_time:.2f} seconds")
-    print("BERT Evaluation Results:", evaluation_results)
+    print("BERT Evaluation Results:", print_evaluation_results(evaluation_results))
 
     # Optional: Convert BERT evaluation results to a similar format as classification_report
     bert_eval_results = {key: evaluation_results[key] for key in ['eval_loss']}
